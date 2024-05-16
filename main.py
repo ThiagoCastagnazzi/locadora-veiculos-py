@@ -1,51 +1,53 @@
-cars = {}
-clients = {}
+cars = {1: {'id': 1, 'plate': 'abc1234', 'brand': 'bmw', 'model': 'x6', 'color': 'branca', 'manufacturing_date': '2024'}}
+clients = {1: {'id': 1, 'cpf': '07237395106', 'name': 'thiago castagnazzi', 'birth': '04/10/1999', 'phone': '67998309537'}}
 schedules = {}
 
-def new_car(plate, brand, model, color, manufacturing_date):
-    if cars:
-        id = max(cars.keys()) + 1
-    else:
-        id = 1
 
-    cars[id] = {}
-    cars[id]['plate'] = plate
-    cars[id]['brand'] = brand
-    cars[id]['model'] = model
-    cars[id]['color'] = color
-    cars[id]['manufacturing_date'] = manufacturing_date
-    cars[id]['id'] = id
-    print('')
-    print('Carro adicionado com sucesso !!!')
-    print('')
+def new_car(plate, brand, model, color, manufacturing_date):
+    id = max(cars.keys()) + 1 if cars else 1
+
+    cars[id] = dict(id=id, plate=plate, brand=brand, model=model, color=color, manufacturing_date=manufacturing_date)
+    print('\nCarro adicionado com sucesso !!!\n')
+
 
 def list_cars():
-    print('')
-    print("Lista de Carros:")
+    print("\nLista de Carros:")
     for car_id, car in cars.items():
         print(f"ID: {car['id']}")
         print(f"Placa: {car['plate']}")
         print(f"Marca: {car['brand']}")
         print(f"Modelo: {car['model']}")
         print(f"Cor: {car['color']}")
-        print(f"Ano de Fabricação: {car['manufacturing_date']}")
-        print('')
+        print(f"Ano de Fabricação: {car['manufacturing_date']}\n")
 
 def update_car(id, plate, brand, model, color, manufacturing_date):
-    cars[id]['plate'] = plate
-    cars[id]['brand'] = brand
-    cars[id]['model'] = model
-    cars[id]['color'] = color
-    cars[id]['manufacturing_date'] = manufacturing_date
-    print('')
-    print('Carro Atualizado com sucesso !!!')
-    print('')
+    cars[id] = dict(id=id, plate=plate, brand=brand, model=model, color=color, manufacturing_date=manufacturing_date)
+    print('\nCarro Atualizado com sucesso !!!\n')
 
 def delete_car(id):
     del cars[id]
-    print('')
-    print('Carro Deletado com sucesso !!!')
-    print('')
+    print('\nCarro Deletado com sucesso !!!\n')
+
+
+# endregion
+
+# region client
+
+def verify_if_cpf_exists(cpf: str) -> bool:
+    for _, client in clients.items():
+        if client['cpf'] == cpf:
+            return True
+
+    return False
+
+
+def find_client_by_id(client_id: int) -> bool:
+    for _, client in clients.items():
+        if client['id'] == client_id:
+            return True
+
+    return False
+
 
 def new_client(cpf, name, birth, phone):
     if clients:
@@ -89,6 +91,7 @@ def delete_client(id):
     print('Cliente Deletado com sucesso !!!')
     print('')
 
+
 def new_scheduling(client_id, car_id, initial_date, final_date):
     if schedules:
         id = max(schedules.keys()) + 1
@@ -96,13 +99,12 @@ def new_scheduling(client_id, car_id, initial_date, final_date):
         id = 1
 
     schedules[id] = {}
+    schedules[id]['id'] = id
     schedules[id]['client_id'] = client_id
     schedules[id]['car_id'] = car_id
     schedules[id]['initial_date'] = initial_date
     schedules[id]['final_date'] = final_date
-    print('')
-    print('Agendamento feito com sucesso !!!')
-    print('')
+    print('\nAgendamento feito com sucesso !!!\n')
 
 def list_schedules():
     print('')
@@ -182,18 +184,19 @@ while True:
                         new_car(plate, brand, model, color, manufacturing_date)
 
                 if sub_option_selected == 2:
-                    if not cars:
-                        print('\nNão há carros cadastrados.\n')
+                    if verify_empty_dict('cars'):
+                        print('\nNão há carros cadastrados !!!\n')
                     else:
                         list_cars()
 
                 if sub_option_selected == 3:
-                    if not cars:
-                        print('\nNão há carros cadastrados.\n')
+                    if verify_empty_dict('cars'):
+                        print('\nNão há carros cadastrados !!!\n')
                     else:
                         id = int(input('Digite o ID do Carro: '))
-                        if id not in cars:
-                            print('\nID Inválido\n')
+
+                        if not find_car_by_id(id):
+                            print('\nID Inválido !!!\n')
                         else:
                             plate_exists = False
                             new_plate = input('Digite a Nova Placa: ')
@@ -215,8 +218,8 @@ while True:
                         print('\nNão há carros cadastrados.\n')
                     else:
                         id = int(input('Digite o ID do Carro: '))
-                        if id not in cars:
-                            print('\nID Inválido\n')
+                        if not find_car_by_id(id):
+                            print('\nID Inválido !!!\n')
                         else:
                             delete_car(id)
 
@@ -244,20 +247,19 @@ while True:
                         new_client(cpf, name, birth, phone)
 
                 if sub_option_selected == 2:
-                    if not clients:
-                        print('\nNão há clientes cadastrados.\n')
+                    if verify_empty_dict('clients'):
+                        print('\nNão há clientes cadastrados !!!\n')
                     else:
                         list_clients()
 
                 if sub_option_selected == 3:
-                    if not clients:
-                        print('\nNão há clientes cadastrados.\n')
+                    if verify_empty_dict('clients'):
+                        print('\nNão há clientes cadastrados !!!\n')
                     else:
                         id = int(input('Digite o ID do Cliente: '))
-                        if id not in clients:
-                            print('\nID Inválido\n')
+                        if not find_client_by_id(id):
+                            print('\nID Inválido !!!\n')
                         else:
-                            cpf_exists = False
                             new_cpf = input('Digite o Novo CPF: ')
                             for client_id, client in clients.items():
                                 if client_id != id and client['cpf'] == new_cpf:
@@ -272,8 +274,8 @@ while True:
                                 update_client(id, new_cpf, name, birth, phone)
 
                 if sub_option_selected == 4:
-                    if not clients:
-                        print('\nNão há clientes cadastrados.\n')
+                    if verify_empty_dict('clients'):
+                        print('\nNão há clientes cadastrados !!!\n')
                     else:
                         id = int(input('Digite o ID do Cliente: '))
                         if id not in clients:
@@ -294,38 +296,41 @@ while True:
 
                 if sub_option_selected == 1:
                     client_id = int(input('Digite o ID do Cliente: '))
-                    if client_id not in clients:
-                        print('\nCliente Não Existe !!!\n')
-                        break
+                    if not find_client_by_id(client_id):
+                        print('\nCliente não encontrado !!!\n')
+                    else:
 
-                    car_id = int(input('Digite o ID do Carro: '))
-                    if car_id not in cars:
-                        print('\nCarro Não Existe !!!\n')
-                        break
-
-                    initial_date = input('Digite a Data Inicial: ')
-                    final_date = input('Digite a Data Final: ')
-                    new_scheduling(client_id, car_id, initial_date, final_date)
+                        car_id = int(input('Digite o ID do Carro: '))
+                        if not find_car_by_id(car_id):
+                            print('\nCarro não encontrado !!!\n')
+                            break
+                        else:
+                            initial_date = input('Digite a Data Inicial: ')
+                            final_date = input('Digite a Data Final: ')
+                            new_scheduling(client_id, car_id, initial_date, final_date)
 
                 if sub_option_selected == 2:
-                    list_schedules()
+                    if verify_empty_dict('schedules'):
+                        print('\nAgendamentos não cadastrados !!!\n')
+                    else:
+                        list_schedules()
 
                 if sub_option_selected == 3:
-                    if not schedules:
-                        print('\nNão há Agendamentos cadastrados.\n')
+                    if verify_empty_dict('schedules'):
+                        print('\nAgendamentos não cadastrados !!!\n')
                     else:
                         id = int(input('Digite o ID do Agendamento: '))
-                        if id not in schedules:
+                        if not find_schedule_by_id(id):
                             print('\nID Inválido\n')
                         else:
                             client_id = int(input('Digite o ID do Novo Cliente: '))
-                            if client_id not in clients:
-                                print('\nCliente Não Existe !!!\n')
+                            if not find_client_by_id(client_id):
+                                print('\nCliente não encontrado\n')
                                 break
 
                             car_id = int(input('Digite o ID do Novo Carro: '))
-                            if car_id not in cars:
-                                print('\nCarro Não Existe !!!\n')
+                            if not find_car_by_id(car_id):
+                                print('\nCarro não encontrado\n')
                                 break
 
                             initial_date = input('Digite a Nova Data Inicial: ')
@@ -334,11 +339,11 @@ while True:
 
                 if sub_option_selected == 4:
                     if not schedules:
-                        print('\nNão há Agendamentos cadastrados.\n')
+                        print('\nNão há Agendamentos cadastrados !!!\n')
                     else:
                         id = int(input('Digite o ID do Agendamento: '))
-                        if id not in schedules:
-                            print('\nID Inválido\n')
+                        if not find_schedule_by_id(id):
+                            print('\nID Inválido !!!\n')
                         else:
                             delete_schedule(id)
 
