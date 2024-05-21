@@ -6,6 +6,10 @@ from utils import utils as utils_controller
 menu_options = {1: 'Carro', 2: 'Cliente', 3: 'Agendamento', 0: 'Sair'}
 sub_menu = {1: 'Criar', 2: 'Listar', 3: 'Atualizar', 4: 'Deletar', 0: 'Voltar'}
 
+car_controller = CarController()
+client_controller = ClientController()
+schedule_controller = ScheduleController()
+
 while True:
     print('--- MENU ---')
     for key, value in menu_options.items():
