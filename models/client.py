@@ -1,62 +1,72 @@
+import sqlite3
+
+
 class Client:
     def __init__(self):
-        self.clients = {
-            1: dict(id=1, cpf='07237395106', name='thiago castagnazzi', birth='04/10/1999', phone='67998309537')
-        }
+        self.db_filename = 'clients.db'
+        self.conn = sqlite3.connect(self.db_filename)
+        self.create_table()
+
+    def create_table(self):
+        with self.conn:
+            self.conn.execute("""
+                CREATE TABLE IF NOT EXISTS clients (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    cpf TEXT UNIQUE,
+                    name TEXT,
+                    birth TEXT,
+                    phone TEXT
+                )
+            """)
 
     def create(self, cpf, name, birth, phone):
-        if self.exists_with_this_cpf(cpf):
+        cpf_exists = self.exists_with_this_cpf(cpf)
+
+        if cpf_exists:
             return None, False
 
-        id = max(self.clients.keys()) + 1 if self.clients else 1
-
-        self.clients[id] = dict(
-            id=id,
-            cpf=cpf,
-            name=name,
-            birth=birth,
-            phone=phone
-        )
-
-        return self.clients, True
+        with self.conn:
+            cursor = self.conn.execute("""
+                        INSERT INTO clients (cpf, name, birth, phone)
+                        VALUES (?, ?, ?, ?)
+                    """, (cpf, name, birth, phone))
+            client_id = cursor.lastrowid
+            return {'id': client_id, 'cpf': cpf, 'name': name, 'birth': birth, 'phone': phone}, True
 
     def list(self):
-        return [client for _, client in self.clients.items()]
+        cursor = self.conn.execute("SELECT id, cpf, name, birth, phone FROM clients")
+        columns = [column[0] for column in cursor.description]
+        clients = cursor.fetchall()
+        return [dict(zip(columns, row)) for row in clients]
 
     def update(self, id, cpf, name, birth, phone):
-        if not self.exists_with_this_id(id):
+        client_exists = self.get_by_id(id)
+        if client_exists:
+            with self.conn:
+                self.conn.execute("""
+                       UPDATE clients
+                       SET cpf = ?, name = ?, birth = ?, phone = ?
+                       WHERE id = ?
+                   """, (cpf, name, birth, phone, id))
+                return {'id': id, 'cpf': cpf, 'name': name, 'birth': birth, 'phone': phone}, True
+        else:
             return None, False
-
-        if self.exists_with_this_cpf(cpf):
-            return None, False
-
-        client = self.clients[id]
-        client.update(
-            id=id,
-            cpf=cpf,
-            name=name,
-            birth=birth,
-            phone=phone
-        )
-
-        return client, True
 
     def delete(self, id):
-        if self.exists_with_this_id(id):
-            del self.clients[id]
-            return True
-        else:
-            return False
-
-    def exists_with_this_cpf(self, cpf: str) -> bool:
-        for _, client in self.clients.items():
-            if client['cpf'] == cpf:
+        with self.conn:
+            cursor = self.conn.execute("DELETE FROM clients WHERE id = ?", (id,))
+            if cursor.rowcount > 0:
                 return True
-
-        return False
-
-    def exists_with_this_id(self, id: int):
-        return self.clients.get(id)
+            else:
+                return False
 
     def get_by_id(self, id):
-        return self.clients.get(id)
+        cursor = self.conn.execute("SELECT id, cpf, name, birth, phone FROM clients WHERE id = ?", (id,))
+        row = cursor.fetchone()
+        if row:
+            return dict(zip([column[0] for column in cursor.description], row))
+        return None
+
+    def exists_with_this_cpf(self, cpf):
+        cursor = self.conn.execute("SELECT 1 FROM clients WHERE cpf = ?", (cpf,))
+        return cursor.fetchone()

@@ -10,11 +10,11 @@ class Schedule:
         self.schedules = {}
 
     def create(self, client_id, car_id, initial_date, final_date):
-        if not client_model.exists_with_this_id(client_id):
-            return None,False
+        if not client_model.get_by_id(client_id):
+            return None, False
 
         if not car_model.exists_with_this_id(car_id):
-            return None,False
+            return None, False
 
         id = max(self.schedules.keys()) + 1 if self.schedules else 1
 
@@ -46,12 +46,12 @@ class Schedule:
         return schedule_list
 
     def update(self, id, client_id, car_id, initial_date, final_date):
-        if not client_model.exists_with_this_id(client_id):
-            return None,False
+        if not client_model.get_by_id(client_id):
+            return None, False
 
         if not car_model.exists_with_this_id(car_id):
-            return None,False
-        
+            return None, False
+
         schedule = self.schedules[id]
         schedule.update(
             id=id,
