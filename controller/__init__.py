@@ -1,3 +1,3 @@
-from .car import CarController, cars
-from .client import ClientController, clients
-from .schedule import ScheduleController, schedules
+from .car import CarController
+from .client import ClientController
+from .schedule import ScheduleController

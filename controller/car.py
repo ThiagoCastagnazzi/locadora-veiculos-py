@@ -1,60 +1,48 @@
-cars = {
-    1: {'id': 1, 'plate': 'abc1234', 'brand': 'bmw', 'model': 'x6', 'color': 'branca', 'manufacturing_date': '2024'}
-}
+from models import Car
 
 
 class CarController:
+    def __init__(self):
+        self.car = Car()
+
     def create(self, plate, brand, model, color, manufacturing_date):
-        plate_exists = self.exists_with_this_plate(plate)
+        car, success = self.car.create(
+            plate=plate,
+            brand=brand,
+            model=model,
+            color=color,
+            manufacturing_date=manufacturing_date
+        )
 
-        if not plate_exists:
-            id = max(cars.keys()) + 1 if cars else 1
-
-            cars[id] = dict(
-                id=id,
-                plate=plate,
-                brand=brand,
-                model=model,
-                color=color,
-                manufacturing_date=manufacturing_date
-            )
-
-            return cars, True
-
-        return None, False
+        if success:
+            return car, True
+        else:
+            return None, False
 
     def list(self):
-        return [car for _, car in cars.items()]
+        return self.car.list()
 
     def get_by_id(self, id):
-        return cars.get(id)
+        return self.car.get_by_id(id=id)
 
     def update(self, id, plate, brand, model, color, manufacturing_date):
-        plate_exists = self.exists_with_this_plate(plate)
+        car, success = self.car.update(
+            id=id,
+            plate=plate,
+            brand=brand,
+            model=model,
+            color=color,
+            manufacturing_date=manufacturing_date
+        )
 
-        if not plate_exists:
-            cars[id] = dict(
-                id=id,
-                plate=plate,
-                brand=brand,
-                model=model,
-                color=color,
-                manufacturing_date=manufacturing_date
-            )
-
-            return cars, True
+        if success:
+            return car, True
         else:
             return None, False
 
     def delete(self, id):
-        del cars[id]
-
-    def exists_with_this_plate(self, plate: str) -> bool:
-        for _, car in cars.items():
-            if car['plate'] == plate:
-                return True
-
-        return False
-
-    def exists_with_this_id(self, car_id: int) -> bool:
-        return self.get_by_id(car_id) is not None
+        deleted = self.car.delete(id=id)
+        if deleted:
+            return True
+        else:
+            return False
